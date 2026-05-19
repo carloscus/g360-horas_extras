@@ -15,12 +15,14 @@ def build():
     print("  G360 Horas Extras - PyInstaller Build")
     print("=" * 50)
     
+    icon_path = os.path.join(project_root, "assets", "images", "icon.ico")
+    
     cmd = [
         sys.executable, "-m", "PyInstaller",
         "--name=G360-Horas-Extras",
         "--onedir",
         "--windowed",
-        "--icon=assets/images/icon.ico",
+        f"--icon={icon_path}",
         "--add-data=assets/images/logo-g360.png;assets/images",
         "--add-data=feriados.json;.",
         "--hidden-import=tkcalendar",
