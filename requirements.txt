@@ -1,0 +1,4 @@
+xlsxwriter
+customtkinter
+tkcalendar
+babel

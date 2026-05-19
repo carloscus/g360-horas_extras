@@ -1,0 +1,21 @@
+{
+  "descripcion": "Feriados fijos del Perú - Editar según necesidad",
+  "version": "2026",
+  "feriados": [
+    { "dia": 1, "mes": 1, "nombre": "Año Nuevo" },
+    { "dia": 1, "mes": 5, "nombre": "Día del Trabajo" },
+    { "dia": 7, "mes": 6, "nombre": "Batalla de Arica y Día de la Bandera" },
+    { "dia": 29, "mes": 6, "nombre": "San Pedro y San Pablo" },
+    { "dia": 23, "mes": 7, "nombre": "Día de la Fuerza Aérea del Perú" },
+    { "dia": 28, "mes": 7, "nombre": "Fiestas Patrias" },
+    { "dia": 29, "mes": 7, "nombre": "Fiestas Patrias" },
+    { "dia": 6, "mes": 8, "nombre": "Batalla de Junín" },
+    { "dia": 30, "mes": 8, "nombre": "Santa Rosa de Lima" },
+    { "dia": 8, "mes": 10, "nombre": "Combate de Angamos" },
+    { "dia": 1, "mes": 11, "nombre": "Día de Todos los Santos" },
+    { "dia": 8, "mes": 12, "nombre": "Inmaculada Concepción" },
+    { "dia": 9, "mes": 12, "nombre": "Batalla de Ayacucho" },
+    { "dia": 25, "mes": 12, "nombre": "Navidad" }
+  ],
+  "notas": "Los feriados de Semana Santa (Jueves Santo, Viernes Santo) se calculan automáticamente"
+}
