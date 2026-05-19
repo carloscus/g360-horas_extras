@@ -10,6 +10,22 @@ import os
 import sys
 from datetime import datetime, timedelta
 
+NOMBRES_MESES = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+
+
+def get_user_config_path() -> str:
+    """Obtiene la ruta del archivo de feriados del usuario."""
+    if sys.platform == "win32":
+        base = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "G360-Horas-Extras")
+    elif sys.platform == "darwin":
+        base = os.path.join(os.path.expanduser("~"), "Library", "Application Support", "G360-Horas-Extras")
+    else:
+        base = os.path.join(os.path.expanduser("~"), ".config", "g360-horas-extras")
+    
+    os.makedirs(base, exist_ok=True)
+    return os.path.join(base, "feriados.json")
+
 
 def calcular_pascua(anio: int) -> datetime:
     """
@@ -59,7 +75,8 @@ def get_semana_santa(anio: int) -> list[dict]:
 class CalendarioFeriados:
     """
     Gestiona el calendario de feriados de Perú.
-    Compu Documents/Carga desde JSON + Cálculo automático de Semana Santa.
+    Carga desde JSON del usuario (prioridad) o bundled JSON.
+    Permite agregar/eliminar feriados fijos con persistencia.
     """
 
     def __init__(self, json_path: str = None):
@@ -67,32 +84,38 @@ class CalendarioFeriados:
         Inicializa el calendario cargando feriados fijos desde un archivo JSON.
 
         Args:
-            json_path: Ruta al archivo feriados.json. Si es None, busca en el directorio del proyecto.
+            json_path: Ruta al archivo feriados.json. Si es None, busca config usuario primero.
         """
         self.json_path = json_path or self._default_json_path()
+        self.bundled_path = self._bundled_json_path()
         self.feriados_fijos = []
         self._cargar_json()
 
     def _default_json_path(self) -> str:
-        """Determina la ruta por defecto al archivo feriados.json."""
+        """Determina la ruta por defecto: config usuario primero."""
+        return get_user_config_path()
+
+    def _bundled_json_path(self) -> str:
+        """Ruta al feriados.json empaquetado (fallback)."""
         if getattr(sys, 'frozen', False):
-            # Ejecutable PyInstaller
             base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
             return os.path.join(base_path, "feriados.json")
         else:
-            # Desarrollo
             base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
             return os.path.join(base_dir, "feriados.json")
 
     def _cargar_json(self) -> None:
-        """Carga los feriados desde el archivo JSON."""
-        if not os.path.exists(self.json_path):
-            raise FileNotFoundError(f"No se encontró el archivo de feriados: {self.json_path}")
-
-        with open(self.json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        self.feriados_fijos = data.get("feriados", [])
+        """Carga los feriados desde config usuario, fallback a bundled."""
+        if os.path.exists(self.json_path):
+            with open(self.json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.feriados_fijos = data.get("feriados", [])
+        elif os.path.exists(self.bundled_path):
+            with open(self.bundled_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.feriados_fijos = data.get("feriados", [])
+        else:
+            self.feriados_fijos = []
 
     def obtener_feriados(self, anio: int) -> list[dict]:
         """
@@ -122,6 +145,66 @@ class CalendarioFeriados:
         """
         all_feriados = self.obtener_feriados(anio)
         return sorted([f["dia"] for f in all_feriados])
+
+    def agregar_feriado(self, dia: int, mes: int, nombre: str) -> bool:
+        """
+        Agrega un nuevo feriado fijo y persiste en config usuario.
+        
+        Args:
+            dia: Día del mes (1-31)
+            mes: Mes (1-12)
+            nombre: Nombre del feriado
+            
+        Returns:
+            True si se agregó, False si ya existía.
+        """
+        for f in self.feriados_fijos:
+            if f["dia"] == dia and f["mes"] == mes:
+                return False
+        
+        self.feriados_fijos.append({"dia": dia, "mes": mes, "nombre": nombre})
+        self._guardar_json()
+        return True
+
+    def eliminar_feriado(self, dia: int, mes: int) -> bool:
+        """
+        Elimina un feriado fijo y persiste en config usuario.
+        
+        Args:
+            dia: Día del mes
+            mes: Mes
+            
+        Returns:
+            True si se eliminó, False si no existía.
+        """
+        original_len = len(self.feriados_fijos)
+        self.feriados_fijos = [
+            f for f in self.feriados_fijos 
+            if not (f["dia"] == dia and f["mes"] == mes)
+        ]
+        if len(self.feriados_fijos) < original_len:
+            self._guardar_json()
+            return True
+        return False
+
+    def restaurar_default(self) -> None:
+        """Restaura feriados desde el JSON bundled original."""
+        if os.path.exists(self.bundled_path):
+            with open(self.bundled_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.feriados_fijos = data.get("feriados", [])
+            self._guardar_json()
+
+    def _guardar_json(self) -> None:
+        """Guarda feriados fijos en config del usuario."""
+        os.makedirs(os.path.dirname(self.json_path), exist_ok=True)
+        data = {
+            "descripcion": "Feriados personalizados G360 Horas Extras",
+            "version": "2026",
+            "feriados": self.feriados_fijos
+        }
+        with open(self.json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
     def is_feriado(self, fecha: datetime, anio: int = None) -> bool:
         """
@@ -161,6 +244,10 @@ class CalendarioFeriados:
             if fecha.day == feriado["dia"] and fecha.month == feriado["mes"]:
                 return feriado["nombre"]
         return None
+
+    def _get_semana_santa(self, anio: int) -> list[dict]:
+        """Retorna feriados de Semana Santa calculados (para UI)."""
+        return get_semana_santa(anio)
 
 
 # ============================================================

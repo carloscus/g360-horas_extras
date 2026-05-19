@@ -30,6 +30,7 @@ def build():
         "--hidden-import=src.utils.feriados",
         "--hidden-import=src.utils.periodo",
         "--hidden-import=src.config.theme",
+        "--hidden-import=src.ui.feriados_manager",
         "--noconfirm",
         "--clean",
         "src/main.py"

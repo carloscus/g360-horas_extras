@@ -36,7 +36,8 @@ from PIL import Image, ImageTk
 from tkcalendar import Calendar
 
 from src.core.excel_generator import generar_excel_horas_extras
-from src.utils.feriados import get_calendario
+from src.utils.feriados import get_calendario, refresh_calendario
+from src.ui.feriados_manager import FeriadosManager
 from src.config.theme import (
     G360_GREEN, G360_DARK, G360_CARD_BG, G360_TEXT, G360_GRAY, G360_RED, G360_BLUE,
     G360_GREEN_HOVER, LEGEND_ITEMS,
@@ -301,13 +302,24 @@ class G360HorasExtrasApp(ctk.CTk):
         )
         self.display_periodo.pack(side="left", fill="x", expand=True, padx=(0, 8))
 
-        # Botón con icono
+        # Botones: Feriados + Seleccionar
+        buttons_frame = ctk.CTkFrame(display_frame, fg_color="transparent")
+        buttons_frame.pack(side="right")
+
         ctk.CTkButton(
-            display_frame, text="📅  Seleccionar",
+            buttons_frame, text="⚙️ Feriados",
+            font=ctk.CTkFont(size=FONT_SIZE_SMALL), width=90, height=BUTTON_HEIGHT,
+            fg_color="transparent", border_width=1, border_color=G360_GRAY,
+            text_color=G360_GRAY, hover_color=G360_CARD_BG,
+            command=self._abrir_feriados
+        ).pack(side="left", padx=(0, 5))
+
+        ctk.CTkButton(
+            buttons_frame, text="📅 Seleccionar",
             font=ctk.CTkFont(size=FONT_SIZE_BODY), width=130, height=BUTTON_HEIGHT_LARGE,
             fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
             text_color=G360_DARK, command=self._abrir_picker
-        ).pack(side="right")
+        ).pack(side="left")
 
         # Preview del período (21 al 20)
         self.preview_label = ctk.CTkLabel(
@@ -343,8 +355,11 @@ class G360HorasExtrasApp(ctk.CTk):
     def _abrir_picker(self):
         """Abre el picker de calendario."""
         picker = G360CalendarPicker(self, callback=self._procesar_periodo)
-        picker.deiconify()  # Ensure window is shown
-        # No llamar a mainloop() en ventanas Toplevel - solo en la ventana raíz
+        picker.deiconify()
+
+    def _abrir_feriados(self):
+        """Abre el gestor de feriados."""
+        FeriadosManager(self)
 
     # ------------------------------------------------------------------
     #  PANEL DE FERIADOS
