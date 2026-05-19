@@ -15,7 +15,7 @@ def build():
     print("  G360 Horas Extras - PyInstaller Build")
     print("=" * 50)
     
-    icon_path = os.path.join(project_root, "assets", "images", "icon.ico")
+    icon_path = os.path.join(project_root, "assets", "images", "favicon.ico")
     
     cmd = [
         sys.executable, "-m", "PyInstaller",
