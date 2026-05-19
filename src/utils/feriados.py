@@ -7,6 +7,7 @@ Maneja feriados fijos y cálculo de Semana Santa.
 
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 
 
@@ -74,8 +75,14 @@ class CalendarioFeriados:
 
     def _default_json_path(self) -> str:
         """Determina la ruta por defecto al archivo feriados.json."""
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        return os.path.join(base_dir, "feriados.json")
+        if getattr(sys, 'frozen', False):
+            # Ejecutable PyInstaller
+            base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+            return os.path.join(base_path, "feriados.json")
+        else:
+            # Desarrollo
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            return os.path.join(base_dir, "feriados.json")
 
     def _cargar_json(self) -> None:
         """Carga los feriados desde el archivo JSON."""

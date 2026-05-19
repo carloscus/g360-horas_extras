@@ -14,8 +14,15 @@ import os
 
 # ------------------------------------------------------------------
 #  Agregar la raíz del proyecto al sys.path para importar src/
+#  Soporte PyInstaller (sys._MEIPASS) y desarrollo normal
 # ------------------------------------------------------------------
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if getattr(sys, 'frozen', False):
+    # Ejecutable PyInstaller
+    project_root = os.path.dirname(sys.executable)
+else:
+    # Desarrollo normal
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
@@ -237,8 +244,14 @@ class G360HorasExtrasApp(ctk.CTk):
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.pack(fill="x", padx=PADDING_X, pady=(10, 0))
 
-        # Logo
-        logo_path = Path(__file__).parent.parent / "assets" / "images" / "logo-g360.png"
+        # Logo (soporte PyInstaller + desarrollo)
+        if getattr(sys, 'frozen', False):
+            # Ejecutable: assets están en _MEIPASS
+            base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+            logo_path = os.path.join(base_path, "assets", "images", "logo-g360.png")
+        else:
+            # Desarrollo
+            logo_path = Path(__file__).parent.parent / "assets" / "images" / "logo-g360.png"
         if logo_path.exists():
             try:
                 self.logo_image = ctk.CTkImage(
