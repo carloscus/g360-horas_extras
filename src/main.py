@@ -41,7 +41,7 @@ from src.ui.feriados_manager import FeriadosManager
 from src.config.theme import (
     G360_GREEN, G360_DARK, G360_CARD_BG, G360_TEXT, G360_GRAY, G360_RED, G360_BLUE,
     G360_GREEN_HOVER, LEGEND_ITEMS,
-    FONT_FAMILY_PRIMARY, FONT_SIZE_HEADER, FONT_SIZE_TITLE, FONT_SIZE_BODY, FONT_SIZE_SMALL, FONT_SIZE_LABEL,
+    FONT_FAMILY_PRIMARY, FONT_SIZE_HEADER, FONT_SIZE_TITLE, FONT_SIZE_BODY, FONT_SIZE_SMALL,
     WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_RESIZABLE,
     CARD_CORNER_RADIUS, BUTTON_HEIGHT, BUTTON_HEIGHT_LARGE, PADDING_X, PADDING_Y
 )
@@ -69,7 +69,7 @@ class G360CalendarPicker(ctk.CTkToplevel):
         super().__init__(parent)
         self.callback = callback
         self.title("G360 - Seleccionar Período")
-        self.geometry("400x500")
+        self.geometry("400x400")
         self.configure(fg_color=G360_CARD_BG)
         self.resizable(False, False)
         self.transient(parent)
@@ -249,10 +249,11 @@ class G360HorasExtrasApp(ctk.CTk):
         if getattr(sys, 'frozen', False):
             # Ejecutable: assets están en _MEIPASS
             base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
-            logo_path = os.path.join(base_path, "assets", "images", "logo-g360.png")
+            logo_path = Path(base_path) / "assets" / "images" / "logo-g360.png"
         else:
             # Desarrollo
             logo_path = Path(__file__).parent.parent / "assets" / "images" / "logo-g360.png"
+        
         if logo_path.exists():
             try:
                 self.logo_image = ctk.CTkImage(
@@ -335,7 +336,7 @@ class G360HorasExtrasApp(ctk.CTk):
             frame = ctk.CTkFrame(legend_frame, fg_color="transparent")
             frame.pack(side="left", padx=4)
             ctk.CTkLabel(frame, text="   ", fg_color=color, width=12, height=12, corner_radius=3).pack(side="left")
-            ctk.CTkLabel(frame, text=texto, font=ctk.CTkFont(size=8), text_color=G360_GRAY).pack(side="left", padx=2)
+            ctk.CTkLabel(frame, text=texto, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), text_color=G360_GRAY).pack(side="left", padx=2)
 
         # Botón Acción
         ctk.CTkButton(
@@ -348,7 +349,7 @@ class G360HorasExtrasApp(ctk.CTk):
 
         # Status
         self.status_label = ctk.CTkLabel(
-            form_container, text="", font=ctk.CTkFont(size=FONT_SIZE_LABEL)
+            form_container, text="", font=ctk.CTkFont(size=FONT_SIZE_BODY)
         )
         self.status_label.pack()
 

@@ -144,6 +144,7 @@ def generar_excel_horas_extras(mes: int, anio: int, dias_feriados: list[int] = N
     #  2. CREAR WORKBOOK Y FORMATOS
     # ------------------------------------------------------------------
     workbook = xlsxwriter.Workbook(ruta_completa)
+    workbook.set_properties({'author': 'ccusi'})
 
     # === HOJA 1: REGISTRO ===
     worksheet = workbook.add_worksheet("Registro")

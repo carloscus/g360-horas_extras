@@ -40,10 +40,9 @@ FONT_FAMILY_FALLBACK = "Arial"      # Fallback for cross-platform
 FONT_FAMILY_MONO = "Consolas"       # Monospace for data
 
 FONT_SIZE_HEADER = 24
-FONT_SIZE_TITLE = 13
-FONT_SIZE_BODY = 11
-FONT_SIZE_SMALL = 9
-FONT_SIZE_LABEL = 10
+FONT_SIZE_TITLE = 14
+FONT_SIZE_BODY = 12
+FONT_SIZE_SMALL = 10
 
 # ============================================================
 #  LAYOUT CONSTANTS (reducido)

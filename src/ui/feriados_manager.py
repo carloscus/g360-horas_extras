@@ -56,7 +56,7 @@ class FeriadosManager(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             header, text="GESTIONAR FERIADOS",
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=16, weight="bold"),
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
             text_color=G360_GREEN
         ).pack(side="left")
 
@@ -64,7 +64,7 @@ class FeriadosManager(ctk.CTkToplevel):
         config_path = get_user_config_path()
         ctk.CTkLabel(
             header, text=f"Config: {config_path}",
-            font=ctk.CTkFont(size=8), text_color=G360_GRAY
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), text_color=G360_GRAY
         ).pack(side="right")
 
         # Leyenda
@@ -79,7 +79,7 @@ class FeriadosManager(ctk.CTkToplevel):
             frame = ctk.CTkFrame(legend_frame, fg_color="transparent")
             frame.pack(side="left", padx=8)
             ctk.CTkLabel(frame, text="   ", fg_color=color, width=12, height=12, corner_radius=3).pack(side="left")
-            ctk.CTkLabel(frame, text=texto, font=ctk.CTkFont(size=8), text_color=G360_GRAY).pack(side="left", padx=2)
+            ctk.CTkLabel(frame, text=texto, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), text_color=G360_GRAY).pack(side="left", padx=2)
 
         # Lista de feriados
         list_frame = ctk.CTkFrame(self, fg_color=G360_DARK, corner_radius=8)
@@ -217,13 +217,13 @@ class FeriadosManager(ctk.CTkToplevel):
                 item, text="✕", width=28, height=28,
                 fg_color="transparent", text_color=G360_RED,
                 hover_color="red",
-                font=ctk.CTkFont(size=10),
+                font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY),
                 command=lambda f=feriado: self._eliminar_feriado(f)
             ).pack(side="right", padx=(0, 5))
         else:
             ctk.CTkLabel(
                 item, text="auto",
-                font=ctk.CTkFont(size=7), text_color=G360_GRAY
+                font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), text_color=G360_GRAY
             ).pack(side="right", padx=(0, 8))
 
     def _agregar_feriado(self):
