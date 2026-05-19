@@ -20,6 +20,7 @@ def build():
         "--name=G360-Horas-Extras",
         "--onedir",
         "--windowed",
+        "--icon=assets/images/icon.ico",
         "--add-data=assets/images/logo-g360.png;assets/images",
         "--add-data=feriados.json;.",
         "--hidden-import=tkcalendar",
