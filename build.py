@@ -23,20 +23,18 @@ def build():
         "--onedir",
         "--windowed",
         f"--icon={icon_path}",
+        "--paths=.",
         "--add-data=assets/images/logo-g360.png;assets/images",
+        "--add-data=assets/images/favicon.ico;assets/images",
         "--add-data=feriados.json;.",
         "--hidden-import=tkcalendar",
+        "--hidden-import=babel.numbers",
         "--hidden-import=customtkinter",
         "--hidden-import=PIL",
         "--hidden-import=xlsxwriter",
-        "--hidden-import=src.core.excel_generator",
-        "--hidden-import=src.utils.feriados",
-        "--hidden-import=src.utils.periodo",
-        "--hidden-import=src.config.theme",
-        "--hidden-import=src.ui.feriados_manager",
         "--noconfirm",
         "--clean",
-        "src/main.py"
+        "run.py"
     ]
     
     print(f"\nEjecutando: {' '.join(cmd)}\n")

@@ -18,7 +18,8 @@ import os
 # ------------------------------------------------------------------
 if getattr(sys, 'frozen', False):
     # Ejecutable PyInstaller
-    project_root = os.path.dirname(sys.executable)
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+    project_root = base_path
 else:
     # Desarrollo normal
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +35,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from tkcalendar import Calendar
+import babel.numbers  # Asegura que babel se incluya en el build
 
 from src.core.excel_generator import generar_excel_horas_extras
 from src.utils.feriados import get_calendario, refresh_calendario
@@ -56,150 +58,138 @@ ctk.set_default_color_theme("dark-blue")
 # ============================================================
 #  PICKER CALENDARIO (tkcalendar integrado)
 # ============================================================
-from tkcalendar import Calendar
-
-
-class G360CalendarPicker(ctk.CTkToplevel):
+class G360CalendarPicker(tk.Toplevel):
     """
     Ventana emergente con calendario para seleccionar rango de fechas del período.
-    Rango mínimo: 21 de un mes. Rango máximo: 20 del mes siguiente.
+    Usa tk.Toplevel para máxima compatibilidad con tkcalendar en Windows/PyInstaller.
     """
 
     def __init__(self, parent, callback=None):
         super().__init__(parent)
         self.callback = callback
         self.title("G360 - Seleccionar Período")
-        self.geometry("400x400")
-        self.configure(fg_color=G360_CARD_BG)
+        self.geometry("450x520")
+        self.configure(bg=G360_CARD_BG)
         self.resizable(False, False)
-        self.transient(parent)
         
-        # Delay grab_set until window is viewable
-        self.after(10, self._setup_grab)
+        # Centrar ventana y Focus
+        self.transient(parent)
+        self.attributes("-topmost", True)
         
         # Header
         ctk.CTkLabel(
             self, text="SELECCIONAR PERÍODO",
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_TITLE, weight="bold"),
-            text_color=G360_GREEN
-        ).pack(pady=(15, 0))
+            text_color=G360_GREEN, fg_color=G360_CARD_BG
+        ).pack(pady=(25, 5))
 
         ctk.CTkLabel(
-            self, text="Seleccione cualquier fecha\ndel período deseado (21 a 20)",
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL), text_color=G360_GRAY
-        ).pack(pady=5)
+            self, text="Seleccione cualquier fecha del período",
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+            text_color=G360_GRAY, fg_color=G360_CARD_BG
+        ).pack(pady=(0, 15))
 
-        # Calendario integrado tkcalendar con estilos G360
-        cal_frame = ctk.CTkFrame(self, fg_color="transparent")
-        cal_frame.pack(padx=15, pady=10)
+        # Contenedor del Calendario
+        cal_frame = tk.Frame(self, bg=G360_DARK, padx=15, pady=15, highlightbackground=G360_GREEN, highlightthickness=1)
+        cal_frame.pack(padx=30, pady=5)
 
         self.calendar = Calendar(
             cal_frame,
             selectmode="day",
-            locale="es_ES",
-            background=G360_CARD_BG,
+            showweeknumbers=False,
+            firstweekday="monday",
+            background=G360_DARK,
             foreground=G360_TEXT,
-            bordercolor=G360_GREEN,
+            bordercolor=G360_DARK,
             selectbackground=G360_GREEN,
             selectforeground=G360_DARK,
-            disabledbackground=G360_DARK,
-            disabledforeground=G360_GRAY,
-            weekendbackground=G360_CARD_BG,
+            normalbackground=G360_DARK,
+            normalforeground=G360_TEXT,
+            headersbackground=G360_DARK,
+            headersforeground=G360_GREEN,
+            weekendbackground=G360_DARK,
             weekendforeground=G360_RED,
-            othermonthforeground=G360_GRAY,
             othermonthbackground=G360_DARK,
-            font="Segoe 10",
-            headersbackground=G360_GREEN,
-            headersforeground=G360_DARK,
-            cursor="hand2",
-            headersfont="Segoe 10 bold"
+            othermonthforeground=G360_GRAY,
+            font="Arial 10",
+            headersfont="Arial 10 bold",
+            cursor="hand2"
         )
         self.calendar.pack()
 
-        # Info del período seleccionado
+        # Caja de información (Período calculado)
+        info_container = tk.Frame(self, bg=G360_DARK, height=45)
+        info_container.pack(fill="x", padx=50, pady=(15, 5))
+        info_container.pack_propagate(False)
+
         self.info_label = ctk.CTkLabel(
-            self, text="Seleccione cualquier fecha del período", 
-            font=ctk.CTkFont(size=FONT_SIZE_BODY, weight="bold"),
-            text_color=G360_GREEN
+            info_container, text="Seleccione una fecha", 
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
+            text_color=G360_GREEN, fg_color=G360_DARK
         )
-        self.info_label.pack(pady=5)
+        self.info_label.pack(expand=True)
 
-        # Botón confirmar
+        # Botones
+        btns_frame = tk.Frame(self, bg=G360_CARD_BG)
+        btns_frame.pack(fill="x", padx=50, pady=(20, 20))
+
         ctk.CTkButton(
-            self, text="Confirmar Período", fg_color=G360_GREEN,
-            text_color=G360_DARK, hover_color=G360_GREEN_HOVER,
+            btns_frame, text="Cancelar", width=100, height=BUTTON_HEIGHT,
+            fg_color="transparent", border_width=1, border_color=G360_GRAY,
+            text_color=G360_GRAY, hover_color=G360_DARK,
+            command=self.destroy
+        ).pack(side="left")
+
+        ctk.CTkButton(
+            btns_frame, text="Confirmar Período", height=BUTTON_HEIGHT,
+            fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
+            text_color=G360_DARK, font=ctk.CTkFont(weight="bold"),
             command=self._confirmar
-        ).pack(pady=15)
+        ).pack(side="right", fill="x", expand=True, padx=(12, 0))
 
-        # Vincular selección de día
+        # Eventos y Foco
         self.calendar.bind("<<CalendarSelected>>", self._on_day_selected)
-
-        # Variables para el período calculado
         self.fecha_seleccionada = None
-
-    def _setup_grab(self):
-        """Configura el grab después de que la ventana esté viewable"""
-        try:
-            self.grab_set()
-        except tk.TclError:
-            # Si falla, intentar de nuevo después de un breve retraso
-            self.after(50, self._setup_grab)
+        
+        self.after(100, lambda: [self.grab_set(), self.focus_force()])
 
     def _on_day_selected(self, event=None):
-        """Maneja la selección de una fecha y calcula el período 21/mm al 20/mm+1."""
+        """Calcula el período 21/mm al 20/mm+1."""
         fecha = self.calendar.selection_get()
         self.fecha_seleccionada = fecha
         
-        # Determinar el período: si la fecha es >= 21, usar su mes como inicio
-        # Si es < 21, usar el mes anterior (pero ajustar)
-        dia = fecha.day
-        mes = fecha.month
-        anio = fecha.year
-        
-        # El período siempre empieza el 21 de un mes y termina 20 del siguiente
+        dia, mes, anio = fecha.day, fecha.month, fecha.year
         nom_meses = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun",
                      "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
         
         if dia >= 21:
-            # La fecha está en el período de 21 a 20
-            mes_inicio = mes
-            anio_inicio = anio
+            mes_i, anio_i = mes, anio
         else:
-            # La fecha está antes del 21, pertenece al período anterior
-            mes_inicio = mes - 1 if mes > 1 else 12
-            anio_inicio = anio if mes > 1 else anio - 1
+            mes_i = mes - 1 if mes > 1 else 12
+            anio_i = anio if mes > 1 else anio - 1
         
-        # Calcular mes fin del período
-        mes_fin = mes_inicio + 1 if mes_inicio < 12 else 1
-        anio_fin = anio_inicio if mes_inicio < 12 else anio_inicio + 1
+        mes_f = mes_i + 1 if mes_i < 12 else 1
+        anio_f = anio_i if mes_i < 12 else anio_i + 1
         
-        preview = f"Período: 21/{nom_meses[mes_inicio]}/{str(anio_inicio)[-2:]}  →  20/{nom_meses[mes_fin]}/{str(anio_fin)[-2:]}"
-        self.info_label.configure(text=preview, text_color=G360_GREEN)
+        preview = f"Período: 21/{nom_meses[mes_i]}/{str(anio_i)[-2:]}  →  20/{nom_meses[mes_f]}/{str(anio_f)[-2:]}"
+        self.info_label.configure(text=preview)
 
     def _confirmar(self):
-        """Envía el período calculado a través del callback."""
+        """Callback de retorno."""
         if self.fecha_seleccionada is None:
             messagebox.showwarning("Selección Requerida", "Por favor seleccione una fecha.")
             return
             
-        fecha = self.fecha_seleccionada
-        dia = fecha.day
-        mes = fecha.month
-        anio = fecha.year
-        
-        # Determinar el período basado en la regla 21 a 20
-        if dia >= 21:
-            mes_inicio = mes
-            anio_inicio = anio
-        else:
-            mes_inicio = mes - 1 if mes > 1 else 12
-            anio_inicio = anio if mes > 1 else anio - 1
+        d, m, a = self.fecha_seleccionada.day, self.fecha_seleccionada.month, self.fecha_seleccionada.year
+        mes_i = m if d >= 21 else (m - 1 if m > 1 else 12)
+        anio_i = a if (d >= 21 or m > 1) else a - 1
         
         if self.callback:
-            self.callback(mes_inicio, anio_inicio)
+            self.callback(mes_i, anio_i)
         self.destroy()
 
-    # ============================================================
+
+# ============================================================
 #  MAIN APPLICATION CLASS
 # ============================================================
 
@@ -213,6 +203,9 @@ class G360HorasExtrasApp(ctk.CTk):
         self.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
         self.configure(fg_color=G360_DARK)
         self.resizable(WINDOW_RESIZABLE, WINDOW_RESIZABLE)
+
+        # Configurar Icono de Ventana
+        self._configurar_icono()
 
         # Variables de estado
         self.mes_seleccionado = ctk.StringVar(value="")
@@ -230,6 +223,20 @@ class G360HorasExtrasApp(ctk.CTk):
         hoy = datetime.now()
         self._procesar_periodo(hoy.month, hoy.year)
 
+    def _configurar_icono(self):
+        """Configura el icono de la ventana (.ico) para Windows."""
+        if getattr(sys, 'frozen', False):
+            base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+            icon_path = Path(base_path) / "assets" / "images" / "favicon.ico"
+        else:
+            icon_path = Path(__file__).parent.parent / "assets" / "images" / "favicon.ico"
+
+        if icon_path.exists():
+            try:
+                self.iconbitmap(str(icon_path))
+            except Exception as e:
+                print(f"Warning: Could not load window icon: {e}")
+
     def _procesar_periodo(self, mes, anio):
         """Actualiza la UI con el mes y año seleccionados."""
         self.mes_seleccionado.set(str(mes))
@@ -237,21 +244,15 @@ class G360HorasExtrasApp(ctk.CTk):
         self._actualizar_preview()
         self._actualizar_lista_feriados()
 
-    # ------------------------------------------------------------------
-    #  HEADER
-    # ------------------------------------------------------------------
     def _crear_header(self):
         """Crea el encabezado con logo G360 y título al lado."""
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.pack(fill="x", padx=PADDING_X, pady=(10, 0))
 
-        # Logo (soporte PyInstaller + desarrollo)
         if getattr(sys, 'frozen', False):
-            # Ejecutable: assets están en _MEIPASS
             base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
             logo_path = Path(base_path) / "assets" / "images" / "logo-g360.png"
         else:
-            # Desarrollo
             logo_path = Path(__file__).parent.parent / "assets" / "images" / "logo-g360.png"
         
         if logo_path.exists():
@@ -265,7 +266,6 @@ class G360HorasExtrasApp(ctk.CTk):
             except Exception as e:
                 print(f"Warning: Could not load logo: {e}")
 
-        # Título al lado del logo
         title_frame = ctk.CTkFrame(header, fg_color="transparent")
         title_frame.pack(side="left", fill="y")
 
@@ -275,26 +275,20 @@ class G360HorasExtrasApp(ctk.CTk):
             text_color=G360_GREEN
         ).pack(anchor="w")
 
-    # ------------------------------------------------------------------
-    #  FORMULARIO PRINCIPAL
-    # ------------------------------------------------------------------
     def _crear_formulario(self):
-        """Crea el formulario de configuración del período con picker de calendario."""
+        """Crea el formulario de configuración del período."""
         form_container = ctk.CTkFrame(self, fg_color=G360_CARD_BG, corner_radius=CARD_CORNER_RADIUS)
         form_container.pack(fill="x", padx=PADDING_X, pady=(10, 8))
 
-        # Título sección
         ctk.CTkLabel(
             form_container, text="CONFIGURACIÓN DEL PERÍODO",
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
             text_color=G360_GREEN
         ).pack(anchor="w", padx=15, pady=(10, 3))
 
-        # Display de período + Botón picker
         display_frame = ctk.CTkFrame(form_container, fg_color="transparent")
         display_frame.pack(fill="x", padx=15, pady=6)
 
-        # Card que muestra el período seleccionado
         self.display_periodo = ctk.CTkLabel(
             display_frame, text="No seleccionado",
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_TITLE, weight="bold"),
@@ -303,13 +297,12 @@ class G360HorasExtrasApp(ctk.CTk):
         )
         self.display_periodo.pack(side="left", fill="x", expand=True, padx=(0, 8))
 
-        # Botones: Feriados + Seleccionar
         buttons_frame = ctk.CTkFrame(display_frame, fg_color="transparent")
         buttons_frame.pack(side="right")
 
         ctk.CTkButton(
             buttons_frame, text="⚙️ Feriados",
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL), width=90, height=BUTTON_HEIGHT,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), width=90, height=BUTTON_HEIGHT,
             fg_color="transparent", border_width=1, border_color=G360_GRAY,
             text_color=G360_GRAY, hover_color=G360_CARD_BG,
             command=self._abrir_feriados
@@ -317,18 +310,18 @@ class G360HorasExtrasApp(ctk.CTk):
 
         ctk.CTkButton(
             buttons_frame, text="📅 Seleccionar",
-            font=ctk.CTkFont(size=FONT_SIZE_BODY), width=130, height=BUTTON_HEIGHT_LARGE,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY), width=130, height=BUTTON_HEIGHT_LARGE,
             fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
             text_color=G360_DARK, command=self._abrir_picker
         ).pack(side="left")
 
-        # Preview del período (21 al 20)
         self.preview_label = ctk.CTkLabel(
-            form_container, text="", font=ctk.CTkFont(size=FONT_SIZE_BODY), text_color=G360_GRAY
+            form_container, text="", 
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY), 
+            text_color=G360_GRAY
         )
         self.preview_label.pack(anchor="w", padx=15, pady=2)
 
-        # Leyenda de colores
         legend_frame = ctk.CTkFrame(form_container, fg_color="transparent")
         legend_frame.pack(anchor="w", padx=15, pady=3)
 
@@ -338,7 +331,6 @@ class G360HorasExtrasApp(ctk.CTk):
             ctk.CTkLabel(frame, text="   ", fg_color=color, width=12, height=12, corner_radius=3).pack(side="left")
             ctk.CTkLabel(frame, text=texto, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), text_color=G360_GRAY).pack(side="left", padx=2)
 
-        # Botón Acción
         ctk.CTkButton(
             form_container, text="Generar Planilla Excel",
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
@@ -347,24 +339,20 @@ class G360HorasExtrasApp(ctk.CTk):
             command=self._generar
         ).pack(pady=10)
 
-        # Status
         self.status_label = ctk.CTkLabel(
-            form_container, text="", font=ctk.CTkFont(size=FONT_SIZE_BODY)
+            form_container, text="", 
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY)
         )
         self.status_label.pack()
 
     def _abrir_picker(self):
         """Abre el picker de calendario."""
-        picker = G360CalendarPicker(self, callback=self._procesar_periodo)
-        picker.deiconify()
+        G360CalendarPicker(self, callback=self._procesar_periodo)
 
     def _abrir_feriados(self):
         """Abre el gestor de feriados."""
         FeriadosManager(self)
 
-    # ------------------------------------------------------------------
-    #  PANEL DE FERIADOS
-    # ------------------------------------------------------------------
     def _crear_panel_feriados(self):
         """Crea un panel informativo con feriados del período seleccionado."""
         panel = ctk.CTkFrame(self, fg_color=G360_CARD_BG, corner_radius=CARD_CORNER_RADIUS)
@@ -377,43 +365,35 @@ class G360HorasExtrasApp(ctk.CTk):
         ).pack(anchor="w", padx=15, pady=(6, 0))
 
         self.feriados_text = ctk.CTkTextbox(
-            panel, height=70, fg_color="transparent", text_color=G360_GRAY,
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL), wrap="word"
+            panel, height=75, fg_color="transparent", text_color=G360_GRAY,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+            wrap="word"
         )
-        self.feriados_text.pack(fill="x", padx=12, pady=6)
+        self.feriados_text.pack(fill="x", padx=15, pady=(5, 10))
 
     def _actualizar_lista_feriados(self):
         """Muestra SOLO los feriados que caen dentro del período seleccionado."""
         try:
-            mes = int(self.mes_seleccionado.get())
-            anio = int(self.anio_seleccionado.get())
-            if not mes or not anio:
+            val_mes = self.mes_seleccionado.get()
+            val_anio = self.anio_seleccionado.get()
+            if not val_mes or not val_anio:
                 self.feriados_text.delete("0.0", "end")
                 self.feriados_text.insert("0.0", "Seleccione un período...")
                 return
+            mes = int(val_mes)
+            anio = int(val_anio)
         except (ValueError, TypeError):
             self.feriados_text.delete("0.0", "end")
             return
 
         calendario = get_calendario()
         total_feriados = calendario.obtener_feriados(anio)
-
-        # Calcular mes fin del período
         mes_fin = 1 if mes == 12 else mes + 1
 
         feriados_en_periodo = []
         for feriado in total_feriados:
-            f_mes = feriado["mes"]
-            f_dia = feriado["dia"]
-
-            # Verificar si cae en el período 21/mm al 20/mm+1
-            en_periodo = False
-            if f_mes == mes and f_dia >= 21:
-                en_periodo = True
-            elif f_mes == mes_fin and f_dia <= 20:
-                en_periodo = True
-
-            if en_periodo:
+            f_m, f_d = feriado["mes"], feriado["dia"]
+            if (f_m == mes and f_d >= 21) or (f_m == mes_fin and f_d <= 20):
                 feriados_en_periodo.append(feriado)
 
         self.feriados_text.delete("0.0", "end")
@@ -425,82 +405,54 @@ class G360HorasExtrasApp(ctk.CTk):
         else:
             self.feriados_text.insert("0.0", "No hay feriados en este período.")
 
-    # ------------------------------------------------------------------
-    #  PREVIEW DEL PERÍODO
-    # ------------------------------------------------------------------
     def _actualizar_preview(self):
         """Actualiza el texto del preview de período."""
         try:
             mes = int(self.mes_seleccionado.get())
             anio = int(self.anio_seleccionado.get())
-            if anio < 100:
-                anio += 2000
+            if anio < 100: anio += 2000
 
             nom_meses = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun",
                          "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-            mes_fin = 1 if mes == 12 else mes + 1
-            anio_fin = anio + 1 if mes == 12 else anio
+            mes_f = 1 if mes == 12 else mes + 1
+            anio_f = anio + 1 if mes == 12 else anio
 
-            preview = f"Período: 21/{nom_meses[mes]}/{str(anio)[-2:]}  →  20/{nom_meses[mes_fin]}/{str(anio_fin)[-2:]}"
+            preview = f"Período: 21/{nom_meses[mes]}/{str(anio)[-2:]}  →  20/{nom_meses[mes_f]}/{str(anio_f)[-2:]}"
             self.preview_label.configure(text=preview)
             self.display_periodo.configure(text=f"{nom_meses[mes].upper()} {anio}")
-        except (ValueError, IndexError, TypeError):
+        except:
             self.preview_label.configure(text="")
 
-    # ------------------------------------------------------------------
-    #  GENERACIÓN
-    # ------------------------------------------------------------------
     def _generar(self):
         """Ejecuta la generación del archivo Excel."""
         try:
             mes = int(self.mes_seleccionado.get())
-            if not mes:
-                raise ValueError("Seleccione un período")
             anio = int(self.anio_seleccionado.get())
 
             self.status_label.configure(text="Generando...", text_color=G360_GREEN)
             self.update_idletasks()
 
             archivo = generar_excel_horas_extras(mes, anio)
-            
-            # Get just the filename for display
             nombre_archivo = os.path.basename(archivo)
             self.status_label.configure(text=f" Listo: {nombre_archivo}", text_color=G360_GREEN)
 
-            if messagebox.askyesno("G360 - Éxito", f"Planilla generada: {nombre_archivo}\n\n¿Abrir carpeta contenedora?"):
-                try:
-                    os.startfile(os.path.dirname(archivo))
-                except AttributeError:
-                    # Cross-platform fallback
-                    import subprocess
-                    if sys.platform == "darwin":  # macOS
-                        subprocess.run(["open", os.path.dirname(archivo)])
-                    else:  # Linux
-                        subprocess.run(["xdg-open", os.path.dirname(archivo)])
+            if messagebox.askyesno("G360 - Éxito", f"Planilla generada: {nombre_archivo}\n\n¿Abrir carpeta?"):
+                os.startfile(os.path.dirname(archivo))
 
-        except ValueError as e:
-            messagebox.showerror("G360 - Error", f"Dato inválido: {e}")
-            self.status_label.configure(text="", text_color=G360_RED)
         except Exception as e:
-            messagebox.showerror("G360 - Error", f"Error inesperado: {e}")
+            messagebox.showerror("G360 - Error", f"Error: {e}")
             self.status_label.configure(text="", text_color=G360_RED)
 
-    # ------------------------------------------------------------------
-    #  FOOTER
-    # ------------------------------------------------------------------
     def _crear_footer(self):
         """Crea el pie de página con créditos."""
-        footer = ctk.CTkFrame(self, fg_color="transparent", height=25)
-        footer.pack(fill="x", padx=PADDING_X, pady=(5, 8))
+        footer = ctk.CTkFrame(self, fg_color="transparent", height=30)
+        footer.pack(fill="x", padx=PADDING_X, pady=(5, 10))
         ctk.CTkLabel(
-            footer, text="Powered G360",
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL), text_color=G360_GRAY
+            footer, text="Powered by G360",
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+            text_color=G360_GRAY
         ).pack(side="right")
 
-
-# ============================================================
-#  ENTRY POINT
-# ============================================================
 
 if __name__ == "__main__":
     app = G360HorasExtrasApp()

@@ -101,7 +101,7 @@ class FeriadosManager(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             add_frame, text="Agregar feriado:",
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL, weight="bold"),
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL, weight="bold"),
             text_color=G360_TEXT
         ).pack(anchor="w")
 
@@ -111,14 +111,14 @@ class FeriadosManager(ctk.CTkToplevel):
         # Día
         self.entry_dia = ctk.CTkEntry(
             form_row, width=50, placeholder_text="Día",
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL)
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL)
         )
         self.entry_dia.pack(side="left", padx=(0, 5))
 
         # Mes
         self.entry_mes = ctk.CTkOptionMenu(
             form_row, width=110, values=NOMBRES_MESES[1:],
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL),
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL),
             fg_color=G360_DARK, button_color=G360_CARD_BG
         )
         self.entry_mes.set("Mes")
@@ -127,7 +127,7 @@ class FeriadosManager(ctk.CTkToplevel):
         # Nombre
         self.entry_nombre = ctk.CTkEntry(
             form_row, placeholder_text="Nombre del feriado",
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL), width=200
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), width=200
         )
         self.entry_nombre.pack(side="left", fill="x", expand=True, padx=(0, 5))
 
@@ -135,7 +135,7 @@ class FeriadosManager(ctk.CTkToplevel):
         ctk.CTkButton(
             form_row, text="+ Agregar", width=90, height=30,
             fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
-            text_color=G360_DARK, font=ctk.CTkFont(size=FONT_SIZE_SMALL, weight="bold"),
+            text_color=G360_DARK, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL, weight="bold"),
             command=self._agregar_feriado
         ).pack(side="right")
 
@@ -147,14 +147,14 @@ class FeriadosManager(ctk.CTkToplevel):
             footer, text="Restaurar Default", width=120, height=32,
             fg_color="transparent", border_width=1, border_color=G360_GRAY,
             text_color=G360_GRAY, hover_color=G360_CARD_BG,
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL),
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL),
             command=self._restaurar_default
         ).pack(side="left")
 
         ctk.CTkButton(
             footer, text="Cerrar", width=100, height=32,
             fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
-            text_color=G360_DARK, font=ctk.CTkFont(size=FONT_SIZE_SMALL, weight="bold"),
+            text_color=G360_DARK, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL, weight="bold"),
             command=self.destroy
         ).pack(side="right")
 
@@ -176,7 +176,8 @@ class FeriadosManager(ctk.CTkToplevel):
         if not feriados:
             ctk.CTkLabel(
                 self.feriados_container, text="No hay feriados configurados.",
-                font=ctk.CTkFont(size=FONT_SIZE_SMALL), text_color=G360_GRAY
+                font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+                text_color=G360_GRAY
             ).pack(pady=20)
             return
 
@@ -207,7 +208,8 @@ class FeriadosManager(ctk.CTkToplevel):
         # Nombre
         ctk.CTkLabel(
             item, text=feriado["nombre"],
-            font=ctk.CTkFont(size=FONT_SIZE_SMALL), text_color=G360_TEXT,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+            text_color=G360_TEXT,
             anchor="w"
         ).pack(side="left", fill="x", expand=True)
 
