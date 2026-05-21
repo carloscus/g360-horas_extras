@@ -159,10 +159,18 @@ g360-Horas_Extras/
 
 | Constante | Tamaño | Uso |
 |---|---|---|
-| `FONT_SIZE_HEADER` | 24 | Título principal |
-| `FONT_SIZE_TITLE` | 14 | Secciones |
-| `FONT_SIZE_BODY` | 12 | Texto general, botones, status |
-| `FONT_SIZE_SMALL` | 10 | Leyendas, detalles |
+| `FONT_SIZE_HEADER` | 28 | Título principal |
+| `FONT_SIZE_TITLE` | 18 | Secciones, botones principales |
+| `FONT_SIZE_BODY` | 15 | Texto general, botones, status |
+| `FONT_SIZE_SMALL` | 13 | Leyendas, detalles |
+
+### Dimensiones de Ventana
+
+| Ventana | Tamaño |
+|---|---|
+| Principal | 620x580 (redimensionable) |
+| Calendar Picker | 500x550 |
+| Feriados Manager | 580x560 |
 
 ### Colores G360 (UI)
 

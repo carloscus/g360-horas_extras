@@ -39,24 +39,24 @@ FONT_FAMILY_PRIMARY = "Segoe UI"    # Primary font (Windows)
 FONT_FAMILY_FALLBACK = "Arial"      # Fallback for cross-platform
 FONT_FAMILY_MONO = "Consolas"       # Monospace for data
 
-FONT_SIZE_HEADER = 24
-FONT_SIZE_TITLE = 14
-FONT_SIZE_BODY = 12
-FONT_SIZE_SMALL = 10
+FONT_SIZE_HEADER = 28
+FONT_SIZE_TITLE = 18
+FONT_SIZE_BODY = 15
+FONT_SIZE_SMALL = 13
 
 # ============================================================
-#  LAYOUT CONSTANTS (reducido)
+#  LAYOUT CONSTANTS (optimizado para pantallas pequeñas 720p/12-13")
 # ============================================================
-WINDOW_WIDTH = 550
-WINDOW_HEIGHT = 500
-WINDOW_RESIZABLE = False
+WINDOW_WIDTH = 620
+WINDOW_HEIGHT = 580
+WINDOW_RESIZABLE = True
 
-CARD_CORNER_RADIUS = 10
-BUTTON_HEIGHT = 38
-BUTTON_HEIGHT_LARGE = 42
+CARD_CORNER_RADIUS = 12
+BUTTON_HEIGHT = 40
+BUTTON_HEIGHT_LARGE = 44
 
-PADDING_X = 20
-PADDING_Y = 15
+PADDING_X = 16
+PADDING_Y = 12
 
 # ============================================================
 #  LEGEND COLORS (for calendar picker info)

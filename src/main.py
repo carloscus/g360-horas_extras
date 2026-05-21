@@ -68,7 +68,7 @@ class G360CalendarPicker(tk.Toplevel):
         super().__init__(parent)
         self.callback = callback
         self.title("G360 - Seleccionar Período")
-        self.geometry("450x520")
+        self.geometry("500x550")
         self.configure(bg=G360_CARD_BG)
         self.resizable(False, False)
         
@@ -79,15 +79,15 @@ class G360CalendarPicker(tk.Toplevel):
         # Header
         ctk.CTkLabel(
             self, text="SELECCIONAR PERÍODO",
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_TITLE, weight="bold"),
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_HEADER, weight="bold"),
             text_color=G360_GREEN, fg_color=G360_CARD_BG
-        ).pack(pady=(25, 5))
+        ).pack(pady=(20, 5))
 
         ctk.CTkLabel(
             self, text="Seleccione cualquier fecha del período",
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY), 
             text_color=G360_GRAY, fg_color=G360_CARD_BG
-        ).pack(pady=(0, 15))
+        ).pack(pady=(0, 12))
 
         # Contenedor del Calendario
         cal_frame = tk.Frame(self, bg=G360_DARK, padx=15, pady=15, highlightbackground=G360_GREEN, highlightthickness=1)
@@ -111,8 +111,8 @@ class G360CalendarPicker(tk.Toplevel):
             weekendforeground=G360_RED,
             othermonthbackground=G360_DARK,
             othermonthforeground=G360_GRAY,
-            font="Arial 10",
-            headersfont="Arial 10 bold",
+            font="Arial 12",
+            headersfont="Arial 12 bold",
             cursor="hand2"
         )
         self.calendar.pack()
@@ -124,7 +124,7 @@ class G360CalendarPicker(tk.Toplevel):
 
         self.info_label = ctk.CTkLabel(
             info_container, text="Seleccione una fecha", 
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_TITLE, weight="bold"),
             text_color=G360_GREEN, fg_color=G360_DARK
         )
         self.info_label.pack(expand=True)
@@ -134,16 +134,17 @@ class G360CalendarPicker(tk.Toplevel):
         btns_frame.pack(fill="x", padx=50, pady=(20, 20))
 
         ctk.CTkButton(
-            btns_frame, text="Cancelar", width=100, height=BUTTON_HEIGHT,
-            fg_color="transparent", border_width=1, border_color=G360_GRAY,
+            btns_frame, text="Cancelar", width=110, height=BUTTON_HEIGHT,
+            fg_color="transparent", border_width=2, border_color=G360_GRAY,
             text_color=G360_GRAY, hover_color=G360_DARK,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
             command=self.destroy
         ).pack(side="left")
 
         ctk.CTkButton(
-            btns_frame, text="Confirmar Período", height=BUTTON_HEIGHT,
+            btns_frame, text="Confirmar Período", height=BUTTON_HEIGHT_LARGE,
             fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
-            text_color=G360_DARK, font=ctk.CTkFont(weight="bold"),
+            text_color=G360_DARK, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
             command=self._confirmar
         ).pack(side="right", fill="x", expand=True, padx=(12, 0))
 
@@ -247,7 +248,7 @@ class G360HorasExtrasApp(ctk.CTk):
     def _crear_header(self):
         """Crea el encabezado con logo G360 y título al lado."""
         header = ctk.CTkFrame(self, fg_color="transparent")
-        header.pack(fill="x", padx=PADDING_X, pady=(10, 0))
+        header.pack(fill="x", padx=PADDING_X, pady=(15, 0))
 
         if getattr(sys, 'frozen', False):
             base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
@@ -260,9 +261,9 @@ class G360HorasExtrasApp(ctk.CTk):
                 self.logo_image = ctk.CTkImage(
                     light_image=Image.open(logo_path),
                     dark_image=Image.open(logo_path),
-                    size=(110, 28)
+                    size=(130, 34)
                 )
-                ctk.CTkLabel(header, image=self.logo_image, text="").pack(side="left", padx=(0, 10))
+                ctk.CTkLabel(header, image=self.logo_image, text="").pack(side="left", padx=(0, 12))
             except Exception as e:
                 print(f"Warning: Could not load logo: {e}")
 
@@ -278,39 +279,39 @@ class G360HorasExtrasApp(ctk.CTk):
     def _crear_formulario(self):
         """Crea el formulario de configuración del período."""
         form_container = ctk.CTkFrame(self, fg_color=G360_CARD_BG, corner_radius=CARD_CORNER_RADIUS)
-        form_container.pack(fill="x", padx=PADDING_X, pady=(10, 8))
+        form_container.pack(fill="x", padx=PADDING_X, pady=(12, 10))
 
         ctk.CTkLabel(
             form_container, text="CONFIGURACIÓN DEL PERÍODO",
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
             text_color=G360_GREEN
-        ).pack(anchor="w", padx=15, pady=(10, 3))
+        ).pack(anchor="w", padx=18, pady=(12, 4))
 
         display_frame = ctk.CTkFrame(form_container, fg_color="transparent")
-        display_frame.pack(fill="x", padx=15, pady=6)
+        display_frame.pack(fill="x", padx=18, pady=8)
 
         self.display_periodo = ctk.CTkLabel(
             display_frame, text="No seleccionado",
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_TITLE, weight="bold"),
             text_color=G360_TEXT, fg_color=G360_DARK,
-            corner_radius=8, padx=12, pady=8, width=280
+            corner_radius=10, padx=14, pady=10, width=300
         )
-        self.display_periodo.pack(side="left", fill="x", expand=True, padx=(0, 8))
+        self.display_periodo.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
         buttons_frame = ctk.CTkFrame(display_frame, fg_color="transparent")
         buttons_frame.pack(side="right")
 
         ctk.CTkButton(
             buttons_frame, text="⚙️ Feriados",
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), width=90, height=BUTTON_HEIGHT,
-            fg_color="transparent", border_width=1, border_color=G360_GRAY,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"), width=100, height=BUTTON_HEIGHT,
+            fg_color="transparent", border_width=2, border_color=G360_GRAY,
             text_color=G360_GRAY, hover_color=G360_CARD_BG,
             command=self._abrir_feriados
-        ).pack(side="left", padx=(0, 5))
+        ).pack(side="left", padx=(0, 8))
 
         ctk.CTkButton(
             buttons_frame, text="📅 Seleccionar",
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY), width=130, height=BUTTON_HEIGHT_LARGE,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"), width=140, height=BUTTON_HEIGHT_LARGE,
             fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
             text_color=G360_DARK, command=self._abrir_picker
         ).pack(side="left")
@@ -320,30 +321,30 @@ class G360HorasExtrasApp(ctk.CTk):
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY), 
             text_color=G360_GRAY
         )
-        self.preview_label.pack(anchor="w", padx=15, pady=2)
+        self.preview_label.pack(anchor="w", padx=18, pady=(0, 4))
 
         legend_frame = ctk.CTkFrame(form_container, fg_color="transparent")
-        legend_frame.pack(anchor="w", padx=15, pady=3)
+        legend_frame.pack(anchor="w", padx=18, pady=4)
 
         for color, texto in LEGEND_ITEMS:
             frame = ctk.CTkFrame(legend_frame, fg_color="transparent")
-            frame.pack(side="left", padx=4)
-            ctk.CTkLabel(frame, text="   ", fg_color=color, width=12, height=12, corner_radius=3).pack(side="left")
-            ctk.CTkLabel(frame, text=texto, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), text_color=G360_GRAY).pack(side="left", padx=2)
+            frame.pack(side="left", padx=6)
+            ctk.CTkLabel(frame, text="   ", fg_color=color, width=14, height=14, corner_radius=4).pack(side="left")
+            ctk.CTkLabel(frame, text=texto, font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), text_color=G360_GRAY).pack(side="left", padx=3)
 
         ctk.CTkButton(
             form_container, text="Generar Planilla Excel",
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_TITLE, weight="bold"),
             fg_color=G360_GREEN, hover_color=G360_GREEN_HOVER,
-            text_color=G360_DARK, height=BUTTON_HEIGHT, width=230,
+            text_color=G360_DARK, height=BUTTON_HEIGHT_LARGE, width=260,
             command=self._generar
-        ).pack(pady=10)
+        ).pack(pady=14)
 
         self.status_label = ctk.CTkLabel(
             form_container, text="", 
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY)
         )
-        self.status_label.pack()
+        self.status_label.pack(pady=(0, 8))
 
     def _abrir_picker(self):
         """Abre el picker de calendario."""
@@ -356,20 +357,20 @@ class G360HorasExtrasApp(ctk.CTk):
     def _crear_panel_feriados(self):
         """Crea un panel informativo con feriados del período seleccionado."""
         panel = ctk.CTkFrame(self, fg_color=G360_CARD_BG, corner_radius=CARD_CORNER_RADIUS)
-        panel.pack(fill="x", padx=PADDING_X, pady=(0, 6))
+        panel.pack(fill="x", padx=PADDING_X, pady=(0, 8))
 
         ctk.CTkLabel(
             panel, text="FERIADOS DEL PERÍODO",
             font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY, weight="bold"),
             text_color=G360_GREEN
-        ).pack(anchor="w", padx=15, pady=(6, 0))
+        ).pack(anchor="w", padx=18, pady=(8, 0))
 
         self.feriados_text = ctk.CTkTextbox(
-            panel, height=75, fg_color="transparent", text_color=G360_GRAY,
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+            panel, height=90, fg_color="transparent", text_color=G360_GRAY,
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY), 
             wrap="word"
         )
-        self.feriados_text.pack(fill="x", padx=15, pady=(5, 10))
+        self.feriados_text.pack(fill="x", padx=18, pady=(6, 12))
 
     def _actualizar_lista_feriados(self):
         """Muestra SOLO los feriados que caen dentro del período seleccionado."""
@@ -445,11 +446,11 @@ class G360HorasExtrasApp(ctk.CTk):
 
     def _crear_footer(self):
         """Crea el pie de página con créditos."""
-        footer = ctk.CTkFrame(self, fg_color="transparent", height=30)
-        footer.pack(fill="x", padx=PADDING_X, pady=(5, 10))
+        footer = ctk.CTkFrame(self, fg_color="transparent", height=35)
+        footer.pack(fill="x", padx=PADDING_X, pady=(8, 12))
         ctk.CTkLabel(
             footer, text="Powered by G360",
-            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_SMALL), 
+            font=ctk.CTkFont(family=FONT_FAMILY_PRIMARY, size=FONT_SIZE_BODY), 
             text_color=G360_GRAY
         ).pack(side="right")
 

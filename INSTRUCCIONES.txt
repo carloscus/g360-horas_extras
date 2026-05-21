@@ -1,0 +1,132 @@
+================================================================================
+  G360 HORAS EXTRAS - INSTRUCCIONES DE USO
+================================================================================
+
+DESCRIPCION
+  Aplicacion de escritorio para generar planillas de horas extras en formato
+  Excel corporativo. Selecciona un periodo, verifica feriados y genera el
+  archivo automaticamente.
+
+--------------------------------------------------------------------------------
+  EJECUCION
+--------------------------------------------------------------------------------
+
+  1. DESDE EJECUTABLE (Recomendado)
+     - Ir a la carpeta: dist/G360-Horas-Extras/
+     - Ejecutar: G360-Horas-Extras.exe
+     - No requiere Python instalado
+
+  2. DESDE FUENTE (Desarrollo)
+     - Abrir terminal en la raiz del proyecto
+     - Ejecutar: python src/main.py
+     - O usar: start_g360.bat (Windows)
+
+--------------------------------------------------------------------------------
+  FLUJO DE USO
+--------------------------------------------------------------------------------
+
+  PASO 1: SELECCIONAR PERIODO
+     - Click en el boton verde "Seleccionar"
+     - Se abre el calendario picker (500x550)
+     - Click en CUALQUIER fecha del periodo deseado
+     - El sistema calcula automaticamente: 21/mm -> 20/mm+1
+     - Ver el preview del periodo en la parte inferior
+     - Click en "Confirmar Periodo"
+
+  PASO 2: VERIFICAR FERIADOS
+     - El panel "FERIADOS DEL PERIODO" muestra los feriados aplicables
+     - Se distinguen por colores:
+       * Verde = Feriado
+       * Rojo  = Domingo
+       * Azul  = Sabado
+       * Blanco = Laboral
+
+  PASO 3: GESTIONAR FERIADOS (Opcional)
+     - Click en "Feriados" para abrir el gestor
+     - Agregar feriados personalizados:
+       . Ingresar dia (1-31)
+       . Seleccionar mes
+       . Escribir nombre del feriado
+       . Click en "+ Agregar"
+     - Eliminar feriados: Click en la "X" roja
+     - Restaurar valores por defecto: Click en "Restaurar Default"
+
+  PASO 4: GENERAR PLANILLA
+     - Click en "Generar Planilla Excel"
+     - El archivo se genera en la carpeta "output/"
+     - Confirmar para abrir la carpeta con el archivo
+
+--------------------------------------------------------------------------------
+  FORMATO DEL EXCEL GENERADO
+--------------------------------------------------------------------------------
+
+  - Dias laborables (Lun-Vie): fondo gris suave
+  - Sabados: fondo azul corporativo
+  - Domingos: fondo rojo suave
+  - Feriados: fondo rojo corporativo con texto blanco
+  - Autor del archivo: ccusi
+
+--------------------------------------------------------------------------------
+  PERIODOS
+--------------------------------------------------------------------------------
+
+  La regla de calculo de periodos es:
+  - Si seleccionas una fecha dia 21 o posterior:
+    Periodo = 21 del mes actual -> 20 del mes siguiente
+  - Si seleccionas una fecha antes del dia 21:
+    Periodo = 21 del mes anterior -> 20 del mes actual
+
+  Ejemplo: Seleccionas 15/Marzo -> Periodo: 21/Feb -> 20/Mar
+  Ejemplo: Seleccionas 25/Marzo -> Periodo: 21/Mar -> 20/Abr
+
+--------------------------------------------------------------------------------
+  RECOMPILAR EJECUTABLE
+--------------------------------------------------------------------------------
+
+  Si haces cambios en el codigo y necesitas regenerar el .exe:
+
+  1. Abrir terminal en la raiz del proyecto
+  2. Ejecutar: python build.py
+  3. El nuevo exe estara en: dist/G360-Horas-Extras/
+
+  Nota: Se requiere PyInstaller instalado:
+    pip install pyinstaller
+
+--------------------------------------------------------------------------------
+  FERIADOS INCLUIDOS (Peru)
+--------------------------------------------------------------------------------
+
+  Fijos:
+    01/01 - Ano Nuevo
+    01/05 - Dia del Trabajo
+    29/06 - San Pedro y San Pablo
+    28/07 - Fiestas Patrias
+    29/07 - Fiestas Patrias
+    30/08 - Santa Rosa de Lima
+    08/10 - Combate de Angamos
+    01/11 - Dia de Todos los Santos
+    08/12 - Inmaculada Concepcion
+    09/12 - Batalla de Ayacucho
+    25/12 - Navidad
+
+  Calculados (Semana Santa - variable cada ano):
+    - Jueves Santo
+    - Viernes Santo
+
+--------------------------------------------------------------------------------
+  REQUERIMIENTOS DEL SISTEMA
+--------------------------------------------------------------------------------
+
+  - Windows 10/11
+  - No requiere Python (si usas el ejecutable)
+  - Resolucion minima recomendada: 1280x720
+  - Optimizado para laptops de 12" y 13"
+
+--------------------------------------------------------------------------------
+  SOPORTE
+--------------------------------------------------------------------------------
+
+  Proyecto: G360 Horas Extras
+  Autor: Carlos Cusi
+  Familia: G360 Ecosystem
+================================================================================
