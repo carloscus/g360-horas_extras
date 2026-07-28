@@ -5,6 +5,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python: 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 
+```mermaid
+flowchart TD
+    A[Usuario] -->|Selecciona periodo| B[Calendar Picker]
+    B --> C[Gestion de feriados]
+    C --> D[Generacion Excel]
+    D --> E[Archivo corporativo]
+```
+
 ---
 
 ## 📋 Tabla de Contenidos
@@ -20,6 +28,7 @@
 - [Feriados](#feriados)
 - [Paleta de Colores Excel](#paleta-de-colores-excel)
 - [Familia G360](#familia-g360)
+- [Licencia](#licencia)
 
 ---
 
@@ -221,6 +230,12 @@ Los feriados se cargan desde `feriados.json` (defecto) y se complementan con la 
 | Sábado | `#D6E4F0` | `#2C3E50` |
 | Domingo | `#FCE4E4` | `#C0392B` |
 | Feriado | `#E74C3C` | `#FFFFFF` |
+
+---
+
+## Licencia
+
+MIT License - ver [LICENSE](LICENSE) para mas detalles.
 
 ---
 
